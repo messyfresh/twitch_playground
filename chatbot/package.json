@@ -18,7 +18,11 @@
   },
   "homepage": "https://github.com/messyfresh/twitch_playground#readme",
   "dependencies": {
-    "dotenv": "^10.0.0",
-    "twitch": "^4.6.7"
+    "@twurple/api": "^5.0.8",
+    "@twurple/auth": "^5.0.8",
+    "@twurple/chat": "^5.0.8",
+    "@twurple/eventsub": "^5.0.8",
+    "@twurple/pubsub": "^5.0.8",
+    "config": "^3.3.6"
   }
 }

@@ -1,0 +1,3 @@
+[submodule "wemo_control"]
+	path = wemo_control
+	url = https://github.com/iancmcc/ouimeaux

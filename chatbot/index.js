@@ -1,20 +1,45 @@
-import { ApiClient } from 'twitch';
-import { AccessToken, RefreshableAuthProvider, StaticAuthProvider } from 'twitch-auth';
+import { RefreshingAuthProvider } from '@twurple/auth';
+import { ChatClient } from '@twurple/chat';
+import { promises as fs } from 'fs';
 
-const refreshToken = process.env.REFRESHTOKEN
-const clientId = process.env.CLIENTID
-const clientSecret = process.env.CLIENTSECRET
-const accessToken = process.env.ACCESSTOKEN
+async function main() {
+	// TODO Import these from .json file
+    const clientId = 'YOUR_CLIENT_ID';
+    const clientSecret = 'YOUR_CLIENT_SECRET';
+    const tokenData = JSON.parse(await fs.readFile('./tokens.json', 'UTF-8'));
+    const authProvider = new RefreshingAuthProvider(
+        {
+            clientId,
+            clientSecret,
+            onRefresh: async newTokenData => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), 'UTF-8')
+        },
+        tokenData
+    );
 
-const authProvider = new RefreshableAuthProvider(
-    new StaticAuthProvider(clientId, accessToken),
-    {
-        clientSecret,
-        refreshToken,
-        onRefresh: (token) => {
-	        // do things with the new token data, e.g. save them in your database
-            // TODO Maybe .env isn't the right option? Or at least need a modifyable config file to store new token in case of process restarts
+    // Chat
+    const chatClient = new ChatClient({ authProvider, channels: ['satisfiedpear'] });
+    await chatClient.connect();
+
+    chatClient.onMessage((channel, user, message) => {
+        if (message === '!ping') {
+            chatClient.say(channel, 'Pong!');
+        } else if (message === '!dice') {
+            const diceRoll = Math.floor(Math.random() * 6) + 1;
+            chatClient.say(channel, `@${user} rolled a ${diceRoll}`)
         }
-    }
-);
-const apiClient = new ApiClient({ authProvider });
+    });
+
+    chatClient.onSub((channel, user) => {
+        chatClient.say(channel, `Thanks to @${user} for subscribing to the channel!`);
+    });
+    
+    chatClient.onResub((channel, user, subInfo) => {
+        chatClient.say(channel, `Thanks to @${user} for subscribing to the channel for a total of ${subInfo.months} months!`);
+    });
+    
+    chatClient.onSubGift((channel, user, subInfo) => {
+        chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
+    });
+}
+
+main();

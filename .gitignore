@@ -103,5 +103,5 @@ dist
 # TernJS port file
 .tern-port
 
-# Sensitive Environment Files
-*.env
+# Sensitive Config Files
+config

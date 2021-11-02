@@ -35,4 +35,4 @@ node_modules/
 .env.test
 
 # Sensitive Config Files
-config.json
+config/

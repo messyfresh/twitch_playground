@@ -23,6 +23,7 @@
     "@twurple/chat": "^5.0.8",
     "@twurple/eventsub": "^5.0.8",
     "@twurple/pubsub": "^5.0.8",
-    "config": "^3.3.6"
+    "config": "^3.3.6",
+    "mongoose": "^6.0.12"
   }
 }

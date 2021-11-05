@@ -2,6 +2,7 @@ import { RefreshingAuthProvider } from '@twurple/auth';
 import { ChatClient } from '@twurple/chat';
 import { promises as fs } from 'fs';
 import mongoose from 'mongoose';
+import { parse } from 'path';
 
 const TwitchConfig = JSON.parse(await fs.readFile('./config/twitch.json', 'UTF-8'));
 const MongoConfig = JSON.parse(await fs.readFile('./config/mongodb.json', 'UTF-8'));
@@ -12,7 +13,7 @@ async function main() {
     await mongoose.connect(MongoConfig.uri);
     const { Schema } = mongoose;
 
-    /*
+
     const tokenSchema = new Schema({
         access_token: String,
         expires_in: Number,
@@ -22,7 +23,7 @@ async function main() {
     });
 
     const TwitchTokenModel = mongoose.model('token', tokenSchema)
-
+    /*
     const TwitchToken = new TwitchTokenModel({
         access_token: TokenConfig.access_token,
         expires_in: TokenConfig.expires_in,
@@ -35,22 +36,32 @@ async function main() {
         if (err) return console.error(err);
     })
     */
-
     const clientSchema = new Schema({
         ClientId: String,
         ClientSecret: String
     })
 
-    const ClientModel = mongoose.model('client', clientSchema);
-    const query = await ClientModel.findOne()
-    
-    console.log(query.ClientId)
+    // Find one document, stringify it, then parse it as JSON
+    // This is needed to pass the token data into authProvider (RefreshingAuthProvider)
+    async function parseQuery (Model) {
+        const data = await Model.findOne();
+        const jsonData = JSON.stringify(data);
+        return JSON.parse(jsonData);
+    }
 
+    const tokenData = await parseQuery(TwitchTokenModel);
+
+    const ClientModel = mongoose.model('client', clientSchema);
+    const clientData = ClientModel.findOne();
+
+    //console.log(clientData);
+    console.log(tokenData);
     /*
     // Auth
-    const clientId = TwitchConfig.ClientId;
-    const clientSecret = TwitchConfig.ClientSecret;
-    const tokenData = JSON.parse(await fs.readFile('./config/token.json', 'UTF-8'));
+    const clientId = clientData.ClientId;
+    const clientSecret = clientData.ClientSecret;
+    //const tokenDataRaw = JSON.parse(await TwitchTokenModel.findOne());
+    //const parsedTokenData
     const authProvider = new RefreshingAuthProvider(
         {
             clientId,

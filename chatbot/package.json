@@ -24,6 +24,7 @@
     "@twurple/eventsub": "^5.0.8",
     "@twurple/pubsub": "^5.0.8",
     "config": "^3.3.6",
-    "mongoose": "^6.0.12"
+    "mongoose": "^6.0.12",
+    "nano": "^9.0.5"
   }
 }
